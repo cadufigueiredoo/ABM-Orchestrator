@@ -53,13 +53,19 @@ export default async function handler(req: VercelReq, res: VercelRes): Promise<v
     return;
   }
 
-  const lang = langRaw === "pt" ? "Portuguese (Brazil)" : "English";
+  // The whole prompt and the metrics JSON are in English, so a single mid-prompt
+  // "write in X" was being ignored and the model replied in English. Front-load
+  // the language rule, name the language assertively, and repeat it after the
+  // schema so every emitted string (headline/summary/title/detail) is localized.
+  const langName = langRaw === "pt" ? "Brazilian Portuguese (pt-BR)" : "English";
   const prompt =
+    `Write ALL natural-language text you output — the headline, the summary, and every action title and detail — in ${langName}. This instruction overrides the language of these instructions and of the data; do not answer in any other language. ` +
     `You are an account-based field marketing lead preparing a territory briefing for the LATAM clusters (Brazil, Mexico, Colombia, Argentina, Chile, Peru). ` +
-    `Write in ${lang}. Use ONLY the numbers in this JSON (scored accounts, territory coverage, budget/ROI); never invent or estimate figures beyond what is given. ` +
+    `Use ONLY the numbers in this JSON (scored accounts, territory coverage, budget/ROI); never invent or estimate figures beyond what is given. ` +
     `Respond with ONLY valid minified JSON, no markdown, no preamble, with this exact shape: ` +
     `{"headline": string (max 12 words), "summary": string (2-3 sentences on tiering, coverage balance and projected ROI), ` +
     `"actions": [{"title": string, "detail": string (1 sentence), "priority": "P1"|"P2"|"P3"}] } with exactly 3 actions ranked by impact. ` +
+    `Keep the JSON keys and the priority codes (P1/P2/P3) exactly as written in English, but write every string VALUE in ${langName}. ` +
     `Metrics: ${JSON.stringify(metrics)}`;
 
   let lastError = "Narration failed.";
