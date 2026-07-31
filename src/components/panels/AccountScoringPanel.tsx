@@ -23,9 +23,16 @@ function TierChip({ tier }: { tier: Tier }) {
 }
 
 function Meter({ value, tone }: { value: number; tone: string }) {
+  // Track uses --line (not --panel2) so the empty portion stays visible on the
+  // white panel; the numeric value sits alongside so the level is always
+  // readable, not just inferred from bar length.
+  const v = Math.round(Math.max(0, Math.min(100, value)));
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-panel2">
-      <div className={`h-full ${tone}`} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+    <div className="flex items-center gap-1.5">
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${v}%` }} />
+      </div>
+      <span className="w-6 shrink-0 text-right font-mono text-[11px] tabular-nums text-dim">{v}</span>
     </div>
   );
 }
