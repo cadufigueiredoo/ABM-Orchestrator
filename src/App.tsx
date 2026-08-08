@@ -9,12 +9,15 @@ import { Board } from "./components/Board";
 import { ImportWizard } from "./components/ImportWizard";
 import { ThemeToggle } from "./components/ui/ThemeToggle";
 import { Signature } from "./components/ui/Signature";
+import { LeadGate } from "./components/LeadGate";
+import { readLead, type Lead } from "./lead";
 
 type View = "board" | "import";
 
 export default function App() {
   const [theme, toggleTheme] = useTheme();
   const [lang, setLang] = useState<Lang>("pt");
+  const [lead, setLead] = useState<Lead | null>(() => readLead());
   const [dataset, setDataset] = useState<AbmDataset>(() => buildPreset());
   const [view, setView] = useState<View>("board");
   const [issues, setIssues] = useState<ValidationIssue[]>([]);
@@ -84,6 +87,7 @@ export default function App() {
 
   return (
     <div className="min-h-full">
+      {!lead && <LeadGate source="ABM Orchestrator" onDone={setLead} theme={theme} toggleTheme={toggleTheme} />}
       <header className="no-print sticky top-0 z-20">
         <div className="float rounded-none">
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-5 py-3">
